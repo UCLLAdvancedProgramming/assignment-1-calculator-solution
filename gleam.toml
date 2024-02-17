@@ -1,0 +1,12 @@
+name = "calculator"
+version = "1.0.0"
+
+repository = { type = "github", user = "UCLLAdvancedProgramming", repo = "assignment-1-calculator" }
+
+[dependencies]
+gleam_stdlib = "~> 0.34 or ~> 1.0"
+gleam_erlang = "~> 0.24"
+
+[dev-dependencies]
+gleeunit = "~> 1.0"
+argv = "~> 1.0"

@@ -1,0 +1,14 @@
+{
+	"name": "Gleam",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"gleam.gleam",
+				"bierner.markdown-mermaid"
+			]
+		}
+	}
+}
