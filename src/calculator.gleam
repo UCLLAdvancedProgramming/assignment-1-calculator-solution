@@ -1,12 +1,23 @@
 //// This module defines the `calculate` and `main` functions (part 4 of the assignment).
 
 import error.{type CalculatorError}
+import tokenize.{tokenize}
+import parse.{parse}
+import evaluate.{evaluate}
+import gleam/bool.{guard}
+import gleam/erlang.{get_line}
+import gleam/int
+import gleam/io.{println}
+import gleam/result
+import gleam/string
 
 /// Takes a mathematical expression as a string, and returns the result of the calculation.
 /// 
 /// If any error occurs, the appropriate CalculatorError is returned.
 pub fn calculate(input: String) -> Result(Int, CalculatorError) {
-  todo as "calculate function not implemented"
+  use tokens <- result.try(tokenize(input))
+  use ast <- result.try(parse(tokens))
+  evaluate(ast)
 }
 
 /// The main function of the application.
@@ -32,5 +43,19 @@ pub fn calculate(input: String) -> Result(Int, CalculatorError) {
 /// > q
 /// ```
 pub fn main() {
-  todo as "main function not implemented"
+  // Get a line, stop on error
+  case get_line("> ") {
+    Ok(line) -> {
+      let trimmed_line = string.trim(line)
+      // Stop on q
+      use <- guard(when: trimmed_line == "q", return: Nil)
+      case calculate(trimmed_line) {
+        Ok(result) -> println("Result: " <> int.to_string(result))
+        Error(error) -> println("Error: " <> error.to_string(error))
+      }
+      // Loop
+      main()
+    }
+    Error(_) -> Nil
+  }
 }

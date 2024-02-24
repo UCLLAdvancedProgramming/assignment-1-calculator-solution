@@ -10,15 +10,22 @@ import associativity.{type Associativity, Right}
 import error.{type CalculatorError, ParseError}
 import expression.{type Expression}
 import token.{type Token}
+import gleam/int
 import gleam/list
-import gleam/option.{type Option, Some}
+import gleam/option.{type Option, None, Some}
 import gleam/order.{type Order, Eq, Gt}
+import gleam/result
 
 /// Parse the given list of tokens into an expression.
 /// 
 /// If parsing fails, then `Error(ParseError)` is returned.
 pub fn parse(tokens: List(Token)) -> Result(Expression, CalculatorError) {
-  todo as "parse function not implemented"
+  use rpn <- result.try(
+    tokens
+    |> identify_negations
+    |> shunting_yard,
+  )
+  parse_rpn([], rpn)
 }
 
 /// Returns the input, with all occurrences of Minus replaced by Neg
@@ -29,7 +36,39 @@ pub fn parse(tokens: List(Token)) -> Result(Expression, CalculatorError) {
 /// - `[Number(1), Minus, Number(2)]` stays the same
 /// - `[Minus, Number(1), Minus, Number(2)]` becomes `[Neg, Number(1), Minus, Number(2)]`
 pub fn identify_negations(input: List(Token)) -> List(Token) {
-  todo as "identify_negations function not implemented"
+  do_identify_negations(input, None)
+}
+
+fn do_identify_negations(
+  input: List(Token),
+  previous: Option(Token),
+) -> List(Token) {
+  case previous, input {
+    None, [token.Minus, ..tail] -> [
+      token.Neg,
+      ..do_identify_negations(tail, Some(token.Neg))
+    ]
+    Some(operator), [token.Minus, ..tail] -> {
+      case is_operator(operator) {
+        True -> [token.Neg, ..do_identify_negations(tail, Some(token.Neg))]
+        False -> [token.Minus, ..do_identify_negations(tail, Some(token.Minus))]
+      }
+    }
+    None, [head, ..tail] -> [head, ..do_identify_negations(tail, Some(head))]
+    Some(_), [head, ..tail] -> [head, ..do_identify_negations(tail, Some(head))]
+    _, [] -> []
+  }
+}
+
+fn is_operator(token: Token) -> Bool {
+  case token {
+    token.Plus -> True
+    token.Minus -> True
+    token.Asterisk -> True
+    token.Slash -> True
+    token.Neg -> True
+    _ -> False
+  }
 }
 
 /// Returns the associativity of the given operator
@@ -38,7 +77,14 @@ pub fn identify_negations(input: List(Token)) -> List(Token) {
 /// Returns Some(Right) if the argument is right-associative
 /// Returns None if the argument is not an operator
 pub fn associativity(token: Token) -> Option(Associativity) {
-  todo as "associativity function not implemented"
+  case token {
+    token.Plus -> Some(associativity.Left)
+    token.Minus -> Some(associativity.Left)
+    token.Asterisk -> Some(associativity.Left)
+    token.Slash -> Some(associativity.Left)
+    token.Neg -> Some(associativity.Right)
+    _ -> None
+  }
 }
 
 /// Compares the precedence of the given two operators
@@ -48,7 +94,19 @@ pub fn associativity(token: Token) -> Option(Associativity) {
 /// Returns Some(Eq) if both arguments have higher precedence
 /// Returns None if one of the arguments is not an operator
 pub fn compare_precedence(left: Token, right: Token) -> Option(Order) {
-  todo as "compare_precedence function not implemented"
+  case precedence(left), precedence(right) {
+    Some(l), Some(r) -> Some(int.compare(l, r))
+    _, _ -> None
+  }
+}
+
+fn precedence(token: Token) -> Option(Int) {
+  case token {
+    token.Plus | token.Minus -> Some(1)
+    token.Asterisk | token.Slash -> Some(2)
+    token.Neg -> Some(3)
+    _ -> None
+  }
 }
 
 /// Parse reverse Polish notation.
@@ -59,7 +117,22 @@ pub fn parse_rpn(
   before: List(Expression),
   after: List(Token),
 ) -> Result(Expression, CalculatorError) {
-  todo as "parse_rpn function not implemented"
+  case before, after {
+    [e], [] -> Ok(e)
+    _, [token.Number(i), ..new_after] ->
+      parse_rpn([expression.Number(i), ..before], new_after)
+    [r, l, ..new_before], [token.Plus, ..new_after] ->
+      parse_rpn([expression.Add(l, r), ..new_before], new_after)
+    [r, l, ..new_before], [token.Minus, ..new_after] ->
+      parse_rpn([expression.Subtract(l, r), ..new_before], new_after)
+    [r, l, ..new_before], [token.Asterisk, ..new_after] ->
+      parse_rpn([expression.Multiply(l, r), ..new_before], new_after)
+    [r, l, ..new_before], [token.Slash, ..new_after] ->
+      parse_rpn([expression.Divide(l, r), ..new_before], new_after)
+    [e, ..new_before], [token.Neg, ..new_after] ->
+      parse_rpn([expression.Negation(e), ..new_before], new_after)
+    _, _ -> Error(ParseError)
+  }
 }
 
 /// Perform the shunting yard algorithm
