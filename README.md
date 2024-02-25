@@ -75,3 +75,9 @@ You can view the generated documentation for all of the modules with:
 ```
 gleam docs build --open
 ```
+
+## Submitting the assignment
+
+In order to submit your assignment, make a release (see Releases on the right), and tag it as `submission` with title "Submission".
+
+Then, copy the commit hash (on the command line, you can use `git rev-parse HEAD`), and submit it on Toledo.
