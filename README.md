@@ -58,6 +58,11 @@ use `brew install gleam` to install Gleam.
 You can find instructions on the [Installing Gleam](https://gleam.run/getting-started/installing/#installing-gleam)
 page.
 
+### Dev container
+
+If you have a Docker daemon installed and running and dev container support enabled in Visual Studio code,
+you can also develop inside of a dev container.
+
 ## IDE support
 
 There is a Gleam extension for Visual Studio Code available. This project is set up
