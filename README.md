@@ -58,6 +58,11 @@ use `brew install gleam` to install Gleam.
 You can find instructions on the [Installing Gleam](https://gleam.run/getting-started/installing/#installing-gleam)
 page.
 
+### Dev container
+
+If you have a Docker daemon installed and running and dev container support enabled in Visual Studio code,
+you can also develop inside of a dev container.
+
 ## IDE support
 
 There is a Gleam extension for Visual Studio Code available. This project is set up
@@ -70,3 +75,9 @@ You can view the generated documentation for all of the modules with:
 ```
 gleam docs build --open
 ```
+
+## Submitting the assignment
+
+In order to submit your assignment, make a release (see Releases on the right), and tag it as `submission` with title "Submission".
+
+Then, copy the commit hash (on the command line, you can use `git rev-parse HEAD`), and submit it on Toledo.
