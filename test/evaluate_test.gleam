@@ -104,3 +104,10 @@ pub fn evaluate_complex_expression_test() {
   |> should.be_ok
   |> should.equal(0)
 }
+
+pub fn evaluate_add_divide_by_zero_test() {
+  // 1 + 1 / 0 -> error
+  eval(Add(Number(1), Divide(Number(1), Number(0))))
+  |> should.be_error
+  |> should.equal(DivideByZeroError)
+}
