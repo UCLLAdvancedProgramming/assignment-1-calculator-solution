@@ -39,6 +39,8 @@ one possible approach could be to process the input character per character
 and then do some extra steps to remove spaces (hence the inclusion of the `Space` token), and
 to collapse adjacent `Number`s into a single `Number`.
 
+Hint: the [list.try_map](https://hexdocs.pm/gleam_stdlib/gleam/list.html#try_map) function may also be of use.
+
 Examples:
 
 - `tokenize("")` returns `Ok([])`
