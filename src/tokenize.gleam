@@ -41,19 +41,13 @@ fn tokenize_grapheme(input: String) -> Result(Token, CalculatorError) {
 fn join_numbers(tokens: List(Token)) -> List(Token) {
   case tokens {
     [] -> []
-    [token.Number(i), token.Number(j), ..tail] -> {
+    [token.Number(i), token.Number(j), ..tail] ->
       join_numbers([token.Number(i * 10 + j), ..tail])
-    }
-    [head, ..tail] -> {
-      [head, ..join_numbers(tail)]
-    }
+    [head, ..tail] -> [head, ..join_numbers(tail)]
   }
 }
 
 fn remove_spaces(tokens: List(Token)) -> List(Token) {
-  case tokens {
-    [] -> []
-    [token.Space, ..tail] -> remove_spaces(tail)
-    [head, ..tail] -> [head, ..remove_spaces(tail)]
-  }
+  tokens
+  |> list.filter(fn(t) { t != token.Space })
 }

@@ -4,7 +4,6 @@ import expression.{
   type Expression, Add, Divide, Multiply, Negation, Number, Subtract, operands,
 }
 import error.{type CalculatorError, DivideByZeroError}
-import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/list
@@ -28,6 +27,8 @@ pub fn evaluate(expression: Expression) -> Result(Int, CalculatorError) {
 }
 
 fn safe_divide(l: Int, r: Int) -> Result(Int, CalculatorError) {
-  use <- bool.guard(when: r == 0, return: Error(DivideByZeroError))
-  Ok(float.round(int.to_float(l) /. int.to_float(r)))
+  case r {
+    0 -> Error(DivideByZeroError)
+    _ -> Ok(float.round(int.to_float(l) /. int.to_float(r)))
+  }
 }

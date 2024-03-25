@@ -36,38 +36,21 @@ pub fn parse(tokens: List(Token)) -> Result(Expression, CalculatorError) {
 /// - `[Number(1), Minus, Number(2)]` stays the same
 /// - `[Minus, Number(1), Minus, Number(2)]` becomes `[Neg, Number(1), Minus, Number(2)]`
 pub fn identify_negations(input: List(Token)) -> List(Token) {
-  do_identify_negations(input, None)
+  do_identify_negations(input, [])
 }
 
-fn do_identify_negations(
-  input: List(Token),
-  previous: Option(Token),
-) -> List(Token) {
-  case previous, input {
-    None, [token.Minus, ..tail] -> [
-      token.Neg,
-      ..do_identify_negations(tail, Some(token.Neg))
-    ]
-    Some(operator), [token.Minus, ..tail] -> {
-      case is_operator(operator) {
-        True -> [token.Neg, ..do_identify_negations(tail, Some(token.Neg))]
-        False -> [token.Minus, ..do_identify_negations(tail, Some(token.Minus))]
+fn do_identify_negations(input: List(Token), acc: List(Token)) -> List(Token) {
+  case input {
+    [] -> list.reverse(acc)
+    [token.Minus, ..rest] -> {
+      case acc {
+        [token.Number(_), ..] | [token.RParen, ..] ->
+          do_identify_negations(rest, [token.Minus, ..acc])
+        _ -> do_identify_negations(rest, [token.Neg, ..acc])
       }
     }
-    None, [head, ..tail] -> [head, ..do_identify_negations(tail, Some(head))]
-    Some(_), [head, ..tail] -> [head, ..do_identify_negations(tail, Some(head))]
-    _, [] -> []
-  }
-}
-
-fn is_operator(token: Token) -> Bool {
-  case token {
-    token.Plus -> True
-    token.Minus -> True
-    token.Asterisk -> True
-    token.Slash -> True
-    token.Neg -> True
-    _ -> False
+    [current_token, ..rest] ->
+      do_identify_negations(rest, [current_token, ..acc])
   }
 }
 

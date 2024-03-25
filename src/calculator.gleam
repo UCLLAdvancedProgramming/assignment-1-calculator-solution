@@ -4,7 +4,6 @@ import error.{type CalculatorError}
 import tokenize.{tokenize}
 import parse.{parse}
 import evaluate.{evaluate}
-import gleam/bool.{guard}
 import gleam/erlang.{get_line}
 import gleam/int
 import gleam/io.{println}
@@ -45,10 +44,9 @@ pub fn calculate(input: String) -> Result(Int, CalculatorError) {
 pub fn main() {
   // Get a line, stop on error
   case get_line("> ") {
+    Ok("q\n") | Error(_) -> Nil
     Ok(line) -> {
       let trimmed_line = string.trim(line)
-      // Stop on q
-      use <- guard(when: trimmed_line == "q", return: Nil)
       case calculate(trimmed_line) {
         Ok(result) -> println("Result: " <> int.to_string(result))
         Error(error) -> println("Error: " <> error.to_string(error))
@@ -56,6 +54,5 @@ pub fn main() {
       // Loop
       main()
     }
-    Error(_) -> Nil
   }
 }
